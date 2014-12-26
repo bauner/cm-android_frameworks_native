@@ -55,12 +55,8 @@ status_t layer_state_t::read(const Parcel& input)
     alpha = input.readFloat();
     flags = input.readInt32();
     mask = input.readInt32();
-	const void* matrix_data = input.readInplace(sizeof(layer_state_t::matrix22_t));
-	if (matrix_data) {
-		matrix = *reinterpret_cast<layer_state_t::matrix22_t const *>(matrix_data);
-	} else {
-		return BAD_VALUE;
-	}
+    matrix = *reinterpret_cast<layer_state_t::matrix22_t const *>(
+            input.readInplace(sizeof(layer_state_t::matrix22_t)));
     input.read(crop);
     input.read(transparentRegion);
     return NO_ERROR;

@@ -53,11 +53,7 @@ public:
         data.writeInt32(h);
         data.writeInt32(format);
         data.writeInt32(usage);
-		status_t result = remote()->transact(CREATE_GRAPHIC_BUFFER, data, &reply);
-		if(result != NO_ERROR){
-			*error = result;
-			return NULL;
-		}
+        status_t result = remote()->transact(CREATE_GRAPHIC_BUFFER, data, &reply);
         if(result != NO_ERROR){
             *error = result;
             return NULL;

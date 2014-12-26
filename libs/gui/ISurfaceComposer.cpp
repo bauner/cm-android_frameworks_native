@@ -341,29 +341,19 @@ status_t BnSurfaceComposer::onTransact(
         case SET_TRANSACTION_STATE: {
             CHECK_INTERFACE(ISurfaceComposer, data, reply);
             size_t count = data.readInt32();
-		if (count > data.dataSize()) {
-			return BAD_VALUE;
-		}
             ComposerState s;
             Vector<ComposerState> state;
             state.setCapacity(count);
             for (size_t i=0 ; i<count ; i++) {
-		if (s.read(data) == BAD_VALUE) {
-			return BAD_VALUE;
-		}
+                s.read(data);
                 state.add(s);
             }
             count = data.readInt32();
-		if (count > data.dataSize()) {
-			return BAD_VALUE;
-		}
             DisplayState d;
             Vector<DisplayState> displays;
             displays.setCapacity(count);
             for (size_t i=0 ; i<count ; i++) {
-		if (d.read(data) == BAD_VALUE) {
-			return BAD_VALUE;
-		}
+                d.read(data);
                 displays.add(d);
             }
             uint32_t flags = data.readInt32();
