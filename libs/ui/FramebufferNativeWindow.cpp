@@ -287,6 +287,7 @@ int FramebufferNativeWindow::queueBuffer(ANativeWindow* window,
     self->front = static_cast<NativeBuffer*>(buffer);
     self->mNumFreeBuffers++;
     self->mCondition.broadcast();
+
     return res;
 }
 
