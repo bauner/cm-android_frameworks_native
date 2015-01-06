@@ -132,6 +132,8 @@ const String16 sAccessSurfaceFlinger("android.permission.ACCESS_SURFACE_FLINGER"
 const String16 sReadFramebuffer("android.permission.READ_FRAME_BUFFER");
 const String16 sDump("android.permission.DUMP");
 
+static sp<Layer> lastSurfaceViewLayer;
+
 // ---------------------------------------------------------------------------
 // Initialize extendedMode to false
 #ifdef QCOM_BSP
@@ -447,7 +449,7 @@ void SurfaceFlinger::init() {
         DisplayDevice::DisplayType type((DisplayDevice::DisplayType)i);
         // set-up the displays that are already connected
         if (mHwc->isConnected(i) || type==DisplayDevice::DISPLAY_PRIMARY) {
-#ifdef QCOM_BSP
+#if defined(QCOM_BSP) && !defined(APQ8084)
             // query from hwc if the non-virtual display is secure.
             bool isSecure = mHwc->isSecure(i);;
 #else
@@ -643,7 +645,7 @@ status_t SurfaceFlinger::getDisplayConfigs(const sp<IBinder>& display,
         info.presentationDeadline =
                 hwConfig.refresh - SF_VSYNC_EVENT_PHASE_OFFSET_NS + 1000000;
 
-#ifdef QCOM_BSP
+#if defined(QCOM_BSP) && !defined(APQ8084)
         // set secure info based on the hwcConfig
         info.secure = hwConfig.secure;
 #else
@@ -861,7 +863,7 @@ void SurfaceFlinger::onHotplugReceived(int type, bool connected) {
     if (uint32_t(type) < DisplayDevice::NUM_BUILTIN_DISPLAY_TYPES) {
         Mutex::Autolock _l(mStateLock);
         if (connected) {
-#ifdef QCOM_BSP
+#if defined(QCOM_BSP) && !defined(APQ8084)
             // query from hwc if the connected display is secure
             bool secure = mHwc->isSecure(type);;
 #else
@@ -1223,6 +1225,10 @@ void SurfaceFlinger::setUpHWComposer() {
                                          SurfaceFlinger::EVENT_ORIENTATION,
                                          uint32_t(draw[i].orientation));
                             }
+                        }
+                        if(!strncmp(layer->getName(), "SurfaceView",
+                                    11)) {
+                            lastSurfaceViewLayer = layer;
                         }
                     }
 #endif
@@ -2927,13 +2933,18 @@ void SurfaceFlinger::dumpStatsLocked(const Vector<String16>& args, size_t& index
     if (name.isEmpty()) {
         mAnimFrameTracker.dumpStats(result);
     } else {
+        bool found = false;
         const LayerVector& currentLayers = mCurrentState.layersSortedByZ;
         const size_t count = currentLayers.size();
         for (size_t i=0 ; i<count ; i++) {
             const sp<Layer>& layer(currentLayers[i]);
             if (name == layer->getName()) {
+                found = true;
                 layer->dumpFrameStats(result);
             }
+        }
+        if (!found && !strncmp(name.string(), "SurfaceView", 11)) {
+            lastSurfaceViewLayer->dumpFrameStats(result);
         }
     }
 }
