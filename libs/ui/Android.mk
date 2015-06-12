@@ -50,6 +50,13 @@ ifeq ($(TARGET_SOC),exynos5250)
     LOCAL_CFLAGS += -DSAMSUNG_EXYNOS5250
 endif
 
+ifeq ($(BOARD_USES_SAMSUNG_HDMI),true)
+LOCAL_CFLAGS += -DSAMSUNG_HDMI_SUPPORT
+LOCAL_SHARED_LIBRARIES += libhdmiclient
+LOCAL_C_INCLUDES += hardware/samsung/$(TARGET_BOARD_PLATFORM)/hal/libhdmi/libhdmiservice
+LOCAL_C_INCLUDES += hardware/samsung/$(TARGET_BOARD_PLATFORM)/hal/include
+endif
+
 ifeq ($(BOARD_HAVE_PIXEL_FORMAT_INFO),true)
 LOCAL_CFLAGS += -DHAVE_PIXEL_FORMAT_INFO
 endif
